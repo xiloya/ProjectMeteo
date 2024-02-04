@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,18 +7,42 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { DeviceEventEmitter } from "react-native";
+import storage from "../Storage";
 
 const image = {
   uri: "https://images.pexels.com/photos/912110/pexels-photo-912110.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
 };
 
 export default function FavoriteScreen() {
-  const favorites = ["City1", "City2", "City3"]; // Replace with your static city names
+  const [favorites, setFavorites] = useState([]);
+  const [needUpdate, setNeedUpdate] = useState(false);
+  const navigation = useNavigation();
+
+  DeviceEventEmitter.addListener("update", () => {
+    setNeedUpdate(!needUpdate);
+  });
+
+  const fetchFavorites = async () => {
+    try {
+      const favoritesData = await storage.load({ key: "favorites" });
+      setFavorites(favoritesData ? favoritesData.value : []);
+    } catch (error) {
+      setFavorites([]);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await fetchFavorites();
+    };
+    init();
+  }, [needUpdate]);
 
   const navigateToSearch = (city) => {
     // You can navigate to the search screen with the selected city
-    // Navigation logic is removed since it's not functional in this snippet
-    console.log(`Navigating to search for ${city}`);
+    navigation.navigate("SkyView", { location: city });
   };
 
   return (

@@ -3,7 +3,11 @@ import MeteoView from "./sceen/home.sceen.jsx";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import FavoriteScreen from "./sceen/favoris.screen.jsx";
+import storage from "./Storage";
 const Drawer = createDrawerNavigator();
+storage.load({ key: "favorties" }).catch(() => {
+  storage.save({ key: "favorites", data: { value: [] } });
+});
 export default function App() {
   return (
     <NavigationContainer>
